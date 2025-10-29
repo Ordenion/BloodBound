@@ -16,12 +16,7 @@ export function spawnEnemyRow(scene, key = 'enemy', imScale = 1) {
     scene.enemies.add(enemy)
     enemy.setData('isEnemy', true)
     created.push(enemy)
-
-    if (enemy.body && enemy.displayWidth && enemy.displayHeight) {
-    enemy.body.setSize(enemy.displayWidth, enemy.displayHeight)
-    }
   }
-
 
   return created
 }
