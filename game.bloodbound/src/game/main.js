@@ -1,21 +1,33 @@
 import { Game as MainGame } from './scenes/Game';
+import { Menu } from './scenes/Menu'
+import { BootScene} from './scenes/BootScene'
 import { AUTO, Scale,Game } from 'phaser';
+import VirtualJoystickPlugin from 'phaser3-rex-plugins/plugins/virtualjoystick-plugin.js'
 
 // Find out more information about the Game Config at:
 // https://docs.phaser.io/api-documentation/typedef/types-core#gameconfig
 const config = {
     type: AUTO,
-    width: 1024,
-    height: 768,
-    parent: 'game-container',
+    width: 390,
+    height: 844,
+    parent: 'app',
     backgroundColor: '#028af8',
     scale: {
-        mode: Scale.FIT,
+        mode: Phaser.Scale.FIT,
         autoCenter: Scale.CENTER_BOTH
     },
-    scene: [
-        MainGame
-    ]
+    physics: {
+        default: 'arcade',
+        arcade: { gravity: { y: 0 }, debug: false }
+    },
+    scene: [ Menu, MainGame, BootScene],
+    plugins: {
+        global: [{
+            key: 'rexVirtualJoystick',
+            plugin: VirtualJoystickPlugin,
+            start: true
+        }]
+    }
 };
 
 const StartGame = (parent) => {
