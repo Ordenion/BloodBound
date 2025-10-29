@@ -9,6 +9,8 @@ export class Game extends Scene {
   }
 
   create() {
+    const { width, height } = this.scale
+
     // чтобы прямоугольники не улетали за экран
     this.physics.world.setBounds(0, 0, this.scale.width, this.scale.height)
 
@@ -29,8 +31,20 @@ export class Game extends Scene {
       enemy.destroy()
 
     })
+    // Open Menu button
+    this.menu_button = this.add.text(width - 80, 16, 'Menu', {
+      fontFamily: 'Arial',
+      fontSize: 20,
+      color: '#a30686ff'
+    }).setInteractive()
 
-    // управление стрелками
+    this.menu_button.on('pointerdown', () => {
+    this.scene.start('Menu')
+    this.scene.pause()
+
+    })
+
+    // управление
     this.joyStick = this.plugins.get('rexVirtualJoystick').add(this, {
       x: 200,
       y: this.scale.height - 80,
@@ -52,6 +66,7 @@ export class Game extends Scene {
         at: 1000,
         run: () => {
             this.spawnBoss();
+
         }
     });
     timeline.play();

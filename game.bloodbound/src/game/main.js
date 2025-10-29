@@ -1,4 +1,6 @@
 import { Game as MainGame } from './scenes/Game';
+import { Menu } from './scenes/Menu'
+import { BootScene} from './scenes/BootScene'
 import { AUTO, Scale,Game } from 'phaser';
 import VirtualJoystickPlugin from 'phaser3-rex-plugins/plugins/virtualjoystick-plugin.js'
 
@@ -11,14 +13,14 @@ const config = {
     parent: 'app',
     backgroundColor: '#028af8',
     scale: {
-
+        mode: Phaser.Scale.FIT,
         autoCenter: Scale.CENTER_BOTH
     },
     physics: {
         default: 'arcade',
         arcade: { gravity: { y: 0 }, debug: false }
     },
-    scene: [MainGame],
+    scene: [MainGame, Menu, BootScene],
     plugins: {
         global: [{
             key: 'rexVirtualJoystick',
