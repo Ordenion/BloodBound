@@ -20,7 +20,7 @@ const config = {
         default: 'arcade',
         arcade: { gravity: { y: 0 }, debug: false }
     },
-    scene: [MainGame, Menu, BootScene],
+    scene: [ Menu, MainGame, BootScene],
     plugins: {
         global: [{
             key: 'rexVirtualJoystick',

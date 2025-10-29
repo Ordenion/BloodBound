@@ -1,4 +1,7 @@
 import Phaser, { Scene } from 'phaser'
+import { initCombat, tryAttack } from '../utilits/combat.js'
+import { createPlayer } from '../objects/player.js'
+import { spawnEnemyRow, spawnBoss } from '../objects/enemies.js'
 
 export class Game extends Scene {
   constructor() {
@@ -6,22 +9,27 @@ export class Game extends Scene {
   }
 
   preload() {
+    this.load.image('vamp', '../assets/vamp.png');
+    this.load.image('hero', '../assets/hero.png');
   }
 
   create() {
     const { width, height } = this.scale
-
-    // чтобы прямоугольники не улетали за экран
     this.physics.world.setBounds(0, 0, this.scale.width, this.scale.height)
 
-    // игрок — зелёный квадрат
-    this.player = this.add.rectangle(200, 400, 32, 32, 0x00ff00)
-    this.physics.add.existing(this.player)
-    this.player.body.setCollideWorldBounds(true)
-
-    // группа врагов — красные квадраты, один «ряд» по ширине
+    // игрок
+    const startX = width / 2
+    const startY = height - 120
+    this.player = createPlayer(this, startX, startY, 'hero', 0.5)
     this.enemies = this.physics.add.group()
-    this.spawnEnemyRow()
+    // простые счётчики золота/опыта — инициализируем ДО того, как коллайдеры или combat будут их использовать
+    this.gold = 0
+    this.xp = 0
+    this.uiText = this.add.text(16, 16, 'Gold: 0  XP: 0', {
+      fontFamily: 'Arial',
+      fontSize: 20,
+      color: '#ffffff'
+    }).setDepth(100)
 
     // столкновения игрока с врагами: враг уничтожается
     this.physics.add.collider(this.player, this.enemies, (_p, enemy) => {
@@ -53,25 +61,31 @@ export class Game extends Scene {
       thumb: this.add.circle(0, 0, 25, 0xffffff, 0.9),
     })
 
-    // простые счётчики золота/опыта
-    this.gold = 0
-    this.xp = 0
-    this.uiText = this.add.text(16, 16, 'Gold: 0  XP: 0', {
-      fontFamily: 'Arial',
-      fontSize: 20,
-      color: '#ffffff'
-    }).setDepth(100)
+    initCombat(this)
 
-    const timeline = this.add.timeline({
-        at: 1000,
-        run: () => {
-            this.spawnBoss();
+    // Timed events: use scene.time.addEvent for reliable timers
+    // spawn boss repeatedly every 1 second
+    this.time.addEvent({
+      delay: 1000,
+      callback: () => spawnBoss(this, 'vamp', 1),
+      loop: true
+    })
 
-        }
-    });
-    timeline.play();
+    // spawn an enemy row repeatedly every 2 seconds
+    this.time.addEvent({
+      delay: 2000,
+      callback: () => spawnEnemyRow(this, 'vamp', 0.5),
+      loop: true
+    })
 
+    // attack loop: try to attack on a regular interval (200 ms)
+    this.time.addEvent({
+      delay: 200,
+      callback: () => tryAttack(this),
+      loop: true
+    })
   }
+
 
   update() {
     const speed = 220
@@ -84,41 +98,5 @@ export class Game extends Scene {
     if (cursorKeys.up.isDown) this.player.body.setVelocityY(-speed)
     else if (cursorKeys.down.isDown) this.player.body.setVelocityY(speed)
 
-    // если всех снесли — спавним новый ряд
-    if (this.enemies.countActive(true) === 0) {
-      this.spawnEnemyRow()
-    }
-  }
-
-  spawnEnemyRow() {
-    const w = this.scale.width
-    const y = Phaser.Math.Between(120, this.scale.height - 120)
-    const count = 8
-    const gap = Math.floor(w / (count + 1))
-    const enemy_count = Math.random() * count
-
-    for (let i = 1; i <= enemy_count; i++) {
-      const x = i * gap
-      const enemy = this.add.rectangle(x, y, 32, 32, 0xff0000)
-      this.physics.add.existing(enemy)
-      enemy.body.setImmovable(true)
-      this.enemies.add(enemy)
-    }
-  }
-
-  spawnBoss(){
-    const w = this.scale.width
-    const y = Phaser.Math.Between(120, this.scale.height - 120)
-    const count = 2
-    const gap = Math.floor(w / (count + 1))
-    const enemy_count = Math.random() * count
-
-    for (let i = 1; i <= enemy_count; i++) {
-      const x = i * gap
-      const enemy = this.add.rectangle(x, y, 56, 56, 0x8B0000)
-      this.physics.add.existing(enemy)
-      enemy.body.setImmovable(true)
-      this.enemies.add(enemy)
-    }
   }
 }

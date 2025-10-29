@@ -8,7 +8,7 @@ export class Menu extends Scene {
   create() {
     const { width, height } = this.scale
 
-    const title = this.add.text(0 , 0 , 'My Idle Game', {
+    const title = this.add.text(0 , 0 , 'Blood Bound', {
       fontFamily: 'Arial Black',
       fontSize: 48,
       color: '#1d1515ff'
