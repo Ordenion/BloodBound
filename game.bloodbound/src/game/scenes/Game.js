@@ -1,7 +1,8 @@
 import Phaser, { Scene } from 'phaser'
 import { initCombat, tryAttack } from '../utilits/combat.js'
 import { createPlayer } from '../objects/player.js'
-import { spawnEnemyRow, spawnBoss } from '../objects/enemies.js'
+import { spawnEnemiesOnTopRow, spawnBossOnTopRow, advanceEnemiesRows } from '../objects/enemies.js'
+import { initField } from '../utilits/field.js'
 import { addHeader } from '../objects/header.js'
 import { addFooter } from '../objects/footer.js'
 import { addWalls } from '../objects/walls.js'
@@ -36,6 +37,9 @@ export class Game extends Scene {
     this.header = addHeader(this)
     this.footer = addFooter(this)
     this.walls = addWalls(this, 24, this.header, this.footer)
+
+    // инициализируем поле и сетку спавна врагов
+    initField(this)
 
     const startX = width / 2
     const startY = height - START_Y_OFFSET
@@ -90,13 +94,19 @@ export class Game extends Scene {
 
     this.time.addEvent({
       delay: SPAWN_BOSS_DELAY,
-      callback: () => spawnBoss(this, 'Boss', 0.4),
+      callback: () => {
+        advanceEnemiesRows(this)
+        spawnBossOnTopRow(this, 'Boss', 0.4, 1)
+      },
       loop: true
     })
 
     this.time.addEvent({
       delay: SPAWN_ENEMY_DELAY,
-      callback: () => spawnEnemyRow(this, 'vamp', 0.5),
+      callback: () => {
+        advanceEnemiesRows(this)
+        spawnEnemiesOnTopRow(this, 'vamp', 0.5, 3)
+      },
       loop: true
     })
 

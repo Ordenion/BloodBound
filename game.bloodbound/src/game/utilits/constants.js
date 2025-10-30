@@ -43,9 +43,20 @@ export const DAMAGE_TWEEN_SCALE = 0.6
 export const ENEMY_SPAWN_PADDING = 120
 export const ENEMY_DEFAULT_SCALE = 1
 
-export const SPAWN_BOSS_DELAY = 1000
-export const SPAWN_ENEMY_DELAY = 2000
+export const SPAWN_BOSS_DELAY = 2000
+export const SPAWN_ENEMY_DELAY = 1000
 export const ATTACK_INTERVAL = 200
+
+// Grid/Field
+export const GRID_ROWS = 5
+export const GRID_COLS = 8
+export const FIELD_VERTICAL_PADDING = 20
+
+// Animations
+export const ENEMY_MOVE_DURATION = 200
+export const ENEMY_SPAWN_DURATION = 180
+export const ENEMY_SPAWN_FROM_SCALE = 0.6
+export const ENEMY_SPAWN_FROM_ALPHA = 0
 
 // Debug visuals
 export const SHOW_HITBOX = true
