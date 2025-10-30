@@ -2,16 +2,15 @@ import Phaser, { Scene } from 'phaser'
 import { initCombat, tryAttack } from '../utilits/combat.js'
 import { createPlayer } from '../objects/player.js'
 import { spawnEnemyRow, spawnBoss } from '../objects/enemies.js'
+import { addHeader } from '../objects/header.js'
+import { addFooter } from '../objects/footer.js'
+import { addWalls } from '../objects/walls.js'
+import { createJoystick } from '../ui/joyStick.js'
 import {
   UI_FONT_SIZE,
   UI_TEXT_PADDING,
   MENU_BUTTON_OFFSET_X,
   START_Y_OFFSET,
-  JOYSTICK_X,
-  JOYSTICK_OFFSET_BOTTOM,
-  JOYSTICK_RADIUS,
-  JOYSTICK_THUMB_RADIUS,
-  PLAYER_DEFAULT_SCALE,
   PLAYER_SPEED,
   SHOW_HITBOX,
   DEBUG_HITBOX_COLOR,
@@ -26,23 +25,31 @@ export class Game extends Scene {
     super('Game')
   }
 
-  preload() {
-    this.load.image('vamp', '../assets/vamp.png');
-    this.load.image('hero', '../assets/hero.png');
-  }
-
   create() {
     const { width, height } = this.scale
     this.physics.world.setBounds(0, 0, this.scale.width, this.scale.height)
 
-    // игрок
-  const startX = width / 2
-  const startY = height - START_Y_OFFSET
-  // createPlayer now has a sensible default scale, so no need to pass it explicitly
-  this.player = createPlayer(this, startX, startY, 'hero')
+    const bg = this.add.image(width / 2, height / 2, 'background')
+    if (bg && bg.setDisplaySize) bg.setDisplaySize(width, height)
+    if (bg && bg.setDepth) bg.setDepth(-100)
+
+    this.header = addHeader(this)
+    this.footer = addFooter(this)
+    this.walls = addWalls(this, 24, this.header, this.footer)
+
+    const startX = width / 2
+    const startY = height - START_Y_OFFSET
+    // createPlayer now has a sensible default scale, so no need to pass it explicitly
+    this.player = createPlayer(this, startX, startY, 'hero')
+
+    // запрещаем игроку проходить через границы
+    this.physics.add.collider(this.player, this.header)
+    this.physics.add.collider(this.player, this.footer)
+    this.physics.add.collider(this.player, this.walls.leftWall)
+    this.physics.add.collider(this.player, this.walls.rightWall)
 
 
-  this.enemies = this.physics.add.group()
+    this.enemies = this.physics.add.group()
 
 
     this.gold = 0
@@ -70,41 +77,29 @@ export class Game extends Scene {
 
     this.menu_button.on('pointerdown', () => {
     this.scene.start('Menu')
-    this.scene.pause()
 
     })
-
-    // управление
-    this.joyStick = this.plugins.get('rexVirtualJoystick').add(this, {
-      x: JOYSTICK_X,
-      y: this.scale.height - JOYSTICK_OFFSET_BOTTOM,
-      radius: JOYSTICK_RADIUS,
-      base: this.add.circle(0, 0, JOYSTICK_RADIUS, 0x888888, 0.4),
-      thumb: this.add.circle(0, 0, JOYSTICK_THUMB_RADIUS, 0xffffff, 0.9),
-    })
-
+    
+    this.joyStick = createJoystick(this)
+    
     initCombat(this)
 
   // debug graphics for hitboxes (optional)
   this.debugGraphics = this.add.graphics()
   if (SHOW_HITBOX) this.debugGraphics.setDepth(200)
 
-    // Timed events: use scene.time.addEvent for reliable timers
-    // spawn boss repeatedly every 1 second
     this.time.addEvent({
       delay: SPAWN_BOSS_DELAY,
-      callback: () => spawnBoss(this, 'vamp', 1),
+      callback: () => spawnBoss(this, 'Boss', 0.4),
       loop: true
     })
 
-    // spawn an enemy row repeatedly every 2 seconds
     this.time.addEvent({
       delay: SPAWN_ENEMY_DELAY,
       callback: () => spawnEnemyRow(this, 'vamp', 0.5),
       loop: true
     })
 
-    // attack loop: try to attack on a regular interval (200 ms)
     this.time.addEvent({
       delay: ATTACK_INTERVAL,
       callback: () => tryAttack(this),
@@ -124,25 +119,28 @@ export class Game extends Scene {
     if (cursorKeys.up.isDown) this.player.body.setVelocityY(-speed)
     else if (cursorKeys.down.isDown) this.player.body.setVelocityY(speed)
 
-    // draw debug hitboxes if enabled
+    if (this.player && this.player.setDepth) this.player.setDepth(this.player.y)
+    if (this.enemies) {
+      this.enemies.getChildren().forEach(enemy => {
+        if (enemy && enemy.setDepth) enemy.setDepth(enemy.y)
+      })
+    }
+
     if (SHOW_HITBOX && this.debugGraphics) {
       const g = this.debugGraphics
       g.clear()
       g.lineStyle(DEBUG_HITBOX_LINEWIDTH, DEBUG_HITBOX_COLOR, 1)
 
-      // world bounds
       try {
         const wb = this.physics.world.bounds
         g.strokeRect(wb.x, wb.y, wb.width, wb.height)
       } catch (e) {}
 
-      // player body
       if (this.player && this.player.body) {
         const b = this.player.body
         g.strokeRect(b.x, b.y, b.width, b.height)
       }
 
-      // enemies
       if (this.enemies) {
         this.enemies.getChildren().forEach(enemy => {
           if (enemy && enemy.body) {
@@ -152,7 +150,6 @@ export class Game extends Scene {
         })
       }
 
-      // bullets
       if (this.bullets) {
         this.bullets.getChildren().forEach(bullet => {
           if (bullet && bullet.body) {
@@ -162,11 +159,10 @@ export class Game extends Scene {
         })
       }
 
-      // melee hitbox (zone)
-      if (this.meleeHitbox) {
+      if (this.meleeHitbox && this.meleeHitbox.body && this.meleeHitbox.body.enable) {
         const hb = this.meleeHitbox
-        if (hb.body) g.strokeRect(hb.body.x, hb.body.y, hb.body.width, hb.body.height)
-        else if (hb.width && hb.height) g.strokeRect(hb.x - hb.width/2, hb.y - hb.height/2, hb.width, hb.height)
+        const b = hb.body
+        g.strokeRect(b.x, b.y, b.width, b.height)
       }
     }
 

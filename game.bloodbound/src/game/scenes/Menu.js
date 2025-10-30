@@ -8,6 +8,10 @@ export class Menu extends Scene {
   create() {
     const { width, height } = this.scale
 
+    const bg = this.add.image(width/2, height/2, 'menuBg')
+    bg.setDisplaySize(width, height)
+    bg.setDepth(-100)
+
     const title = this.add.text(0 , 0 , 'Blood Bound', {
       fontFamily: 'Arial Black',
       fontSize: 48,

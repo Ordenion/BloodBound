@@ -5,10 +5,10 @@ export const UI_FONT_SIZE = 20
 export const UI_TEXT_PADDING = 16
 export const MENU_BUTTON_OFFSET_X = 80
 
-export const START_Y_OFFSET = 120
+export const START_Y_OFFSET = 220
 
 export const JOYSTICK_X = 200
-export const JOYSTICK_OFFSET_BOTTOM = 80
+export const JOYSTICK_OFFSET_BOTTOM = 75
 export const JOYSTICK_RADIUS = 60
 export const JOYSTICK_THUMB_RADIUS = 25
 

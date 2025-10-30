@@ -40,7 +40,7 @@ export function spawnBoss(scene, key = 'boss', imScale = ENEMY_DEFAULT_SCALE) {
     const x = i * gap
     const enemy = scene.physics.add.image(x, y, key).setScale(imScale)
     if (enemy.body && enemy.displayWidth && enemy.displayHeight && enemy.body.setSize) {
-      setHitboxRect(enemy, 0.23, 0.4, true, -85)
+      setHitboxRect(enemy, 1.3, 2.4, true, 95)
     }
     enemy.body.setImmovable(true)
     scene.enemies.add(enemy)
