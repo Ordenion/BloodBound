@@ -74,8 +74,8 @@ function damageEnemy(scene, enemy, dmg) {
       duration: 150,
       onComplete: () => enemy.destroy()
     })
-    scene.gold += 5
-    scene.xp += 10
+    scene.gold += Math.floor(Math.random() * 5)
+    scene.xp += 5
     scene.uiText.setText(`Gold:${scene.gold} XP:${scene.xp}`)
   }
 

@@ -1,4 +1,4 @@
-import { ENEMY_SPAWN_PADDING, ENEMY_DEFAULT_SCALE } from '../utilits/constants.js'
+import { ENEMY_SPAWN_PADDING, ENEMY_DEFAULT_SCALE, ENEMY_BASE_HP, BOSS_BASE_HP } from '../utilits/constants.js'
 import { initField, getNextSpawnRow, pickFreeCellsForRow, getCellCenter, freeCells, getCell } from '../utilits/field.js'
 import { tweenMoveTo, tweenSpawnAppear } from '../utilits/animations.js'
 import { setHitboxRect } from '../utilits/hitbox.js'
@@ -69,6 +69,7 @@ export function spawnEnemiesOnNextRow(scene, key = 'enemy', imScale = ENEMY_DEFA
     enemy.body.setImmovable(true)
     scene.enemies.add(enemy)
     enemy.setData('isEnemy', true)
+    enemy.hp = ENEMY_BASE_HP
     // привязка клетки для освобождения при смерти
     enemy._gridCells = [cell]
     enemy.once('destroy', () => freeCells(enemy._gridCells))
@@ -93,6 +94,7 @@ export function spawnBossOnNextRow(scene, key = 'boss', imScale = ENEMY_DEFAULT_
     enemy.body.setImmovable(true)
     scene.enemies.add(enemy)
     enemy.setData('isEnemy', true)
+    enemy.hp = BOSS_BASE_HP
     enemy._gridCells = pair
     enemy.once('destroy', () => freeCells(enemy._gridCells))
     created.push(enemy)

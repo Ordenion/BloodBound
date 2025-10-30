@@ -8,7 +8,7 @@ export const MENU_BUTTON_OFFSET_X = 80
 export const START_Y_OFFSET = 220
 
 export const JOYSTICK_X = 200
-export const JOYSTICK_OFFSET_BOTTOM = 75
+export const JOYSTICK_OFFSET_BOTTOM = 72
 export const JOYSTICK_RADIUS = 60
 export const JOYSTICK_THUMB_RADIUS = 25
 
@@ -58,7 +58,18 @@ export const ENEMY_SPAWN_DURATION = 180
 export const ENEMY_SPAWN_FROM_SCALE = 0.6
 export const ENEMY_SPAWN_FROM_ALPHA = 0
 
+// UI/Text animations
+export const TEXT_FADE_DURATION = 300
+
 // Debug visuals
 export const SHOW_HITBOX = true
 export const DEBUG_HITBOX_COLOR = 0x00ff00
 export const DEBUG_HITBOX_LINEWIDTH = 1
+
+// Character base stats
+export const PLAYER_BASE_HP = 100
+export const ENEMY_BASE_HP = 20
+export const BOSS_BASE_HP = 120
+
+// Player damage intake
+export const PLAYER_HIT_COOLDOWN = 500

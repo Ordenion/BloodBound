@@ -18,7 +18,8 @@ import {
   DEBUG_HITBOX_LINEWIDTH,
   SPAWN_BOSS_DELAY,
   SPAWN_ENEMY_DELAY,
-  ATTACK_INTERVAL
+  ATTACK_INTERVAL,
+  PLAYER_HIT_COOLDOWN
 } from '../utilits/constants.js'
 
 export class Game extends Scene {
@@ -58,19 +59,34 @@ export class Game extends Scene {
 
     this.gold = 0
     this.xp = 0
-    this.uiText = this.add.text(UI_TEXT_PADDING, UI_TEXT_PADDING, 'Gold: 0  XP: 0', {
+    this.uiText = this.add.text(UI_TEXT_PADDING, UI_TEXT_PADDING, 'Gold: 0  XP: 0  HP: 0', {
       fontFamily: 'Arial',
       fontSize: UI_FONT_SIZE,
       color: '#ffffff'
     }).setDepth(100)
+    this.uiText.setText(`Gold: ${this.gold}  XP: ${this.xp}  HP: ${this.player?.hp ?? 0}`)
 
-    // столкновения игрока с врагами: враг уничтожается
-    this.physics.add.collider(this.player, this.enemies, (_p, enemy) => {
-    this.gold += 5
-      this.xp += 5
-      this.uiText.setText(`Gold: ${this.gold}  XP: ${this.xp}`)
-      enemy.destroy()
-
+    // контакт игрока с врагами: урон игроку с кулдауном (через overlap, без тяжёлой коллизии)
+    this.lastPlayerHitAt = 0
+    this.playerInvulnerableUntil = 0
+    this.playerDamageTween = null
+    this.physics.add.overlap(this.player, this.enemies, (_p, enemy) => {
+      const now = this.time.now
+      if (now < this.playerInvulnerableUntil) return
+      this.lastPlayerHitAt = now
+      this.playerInvulnerableUntil = now + PLAYER_HIT_COOLDOWN
+      this.player.hp = Math.max(0, (this.player.hp || 0) - 10)
+      this.uiText.setText(`Gold: ${this.gold}  XP: ${this.xp}  HP: ${this.player?.hp ?? 0}`)
+      if (this.tweens) {
+        if (this.playerDamageTween && this.playerDamageTween.remove) this.playerDamageTween.remove()
+        this.playerDamageTween = this.tweens.add({ targets: this.player, alpha: 0.4, yoyo: true, duration: 120, repeat: 2 })
+      }
+      if (this.player.hp <= 0) {
+        // disable player interactions and return to menu
+        if (this.player.body && this.player.body.setEnable) this.player.body.setEnable(false)
+        this.player.setActive(false)
+        this.time.delayedCall(200, () => this.scene.start('Menu'))
+      }
     })
     // Open Menu button
     this.menu_button = this.add.text(width - MENU_BUTTON_OFFSET_X, UI_TEXT_PADDING, 'Menu', {

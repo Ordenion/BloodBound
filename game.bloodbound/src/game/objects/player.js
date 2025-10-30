@@ -1,4 +1,4 @@
-import { PLAYER_DEFAULT_SCALE } from '../utilits/constants.js'
+import { PLAYER_DEFAULT_SCALE, PLAYER_BASE_HP } from '../utilits/constants.js'
 import { setHitboxRect } from '../utilits/hitbox.js'
 
 export function createPlayer(scene, x, y, key, scale = PLAYER_DEFAULT_SCALE, hitboxRatio = { w: 0.6, h: 0.9 }) {
@@ -19,6 +19,7 @@ export function createPlayer(scene, x, y, key, scale = PLAYER_DEFAULT_SCALE, hit
 
   // helper flag — can be used elsewhere
   player.setData('isPlayer', true)
+  player.hp = PLAYER_BASE_HP
 
   return player
 }
