@@ -62,7 +62,7 @@ export const ENEMY_SPAWN_FROM_ALPHA = 0
 export const TEXT_FADE_DURATION = 300
 
 // Debug visuals
-export const SHOW_HITBOX = true
+export const SHOW_HITBOX = false
 export const DEBUG_HITBOX_COLOR = 0x00ff00
 export const DEBUG_HITBOX_LINEWIDTH = 1
 
